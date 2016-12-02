@@ -1,0 +1,7 @@
+th, td {
+  text-align:center;
+}
+td .ng-invalid.ng-dirty {background-color:lightpink;}
+td .ng-valid.ng-dirty {background-color:lightgreen;}
+form .ng-invalid.ng-dirty {background-color:lightpink;}
+form .ng-valid.ng-dirty {background-color:lightgreen;}

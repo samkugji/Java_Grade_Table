@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://code.angularjs.org/1.4.2/angular.js"></script>
+  <script src="https://code.angularjs.org/1.4.2/angular-route.js"></script>
+  <script src="View.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="View.css">
+  <title>Angular with Gson</title>
+</head>
+<body ng-app="mainApp" ng-controller="mainCtrl">
+  <header>
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#addStudents">성적관리 프로그램</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li><a href="#addStudents"><b>Add&nbsp;&nbsp;</b><span class="glyphicon glyphicon-plus"></span></a></li>
+            <li><a href="#viewStudents"><b>View&nbsp;&nbsp;</b><span class="glyphicon glyphicon-list"></span></a></li>
+            <li><a href="#searchStudents"><b>Search&nbsp;&nbsp;</b><span class="glyphicon glyphicon-search"></span></a></li>
+            <li><a href="#editStudents"><b>Edit&nbsp;&nbsp;</b><span class="glyphicon glyphicon-edit"></span></a></li>
+          </ul>
+        </div>
+    </nav>
+  </header>
+
+  <div ng-view></div>
+
+  <!-- View template-->
+  <script type="text/ng-template" id="addStudents">
+      <div class="page-header"><h1><b>&nbsp;&nbsp;학생 성적 입력</b></h1></div>
+      <div class="well well-lg">
+          <h4><b>학생의 이름과 국어, 영어, 수학 성적을 입력하고 버튼을 클릭하세요.</b></h4>
+          <form name="addForm" class="form-inline" method="post" action="Add">
+              <label for="name">이름:</label>
+              <input type="text" class="form-control" style="width: 15em" name="addname" placeholder="이름 입력(최대 15자)" value="Nonamed" maxlength="15" required>
+              &nbsp;&nbsp;<label for="kor">국어:</label>
+              <input type="number" class="form-control" style="width: 7em" name="addkor" placeholder="국어성적" value=0 maxlength="3" min="0" max="100" required>
+              &nbsp;&nbsp;<label for="eng">영어:</label>
+              <input type="number" class="form-control" style="width: 7em" name="addeng" placeholder="영어성적" value=0 maxlength="3" min="0" max="100" required>
+              &nbsp;&nbsp;<label for="math">수학:</label>
+              <input type="number" class="form-control" style="width: 7em" name="addmath" placeholder="수학성적" value=0 maxlength="3" min="0" max="100" required>
+              &nbsp;&nbsp;<button type="submit" class="btn btn-default">+</button>
+          </form>
+      </div>
+  </script>
+
+  <!-- View template-->
+  <script type="text/ng-template" id="viewStudents">
+  <div class="page-header"><h1><b>&nbsp;&nbsp;학생 성적 출력</b></h1></div>
+  <div class="well well-lg">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+                <th>ID&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('id')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-id')"></span></th>
+                <th>이름&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('name')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-name')"></span></th>
+                <th>국어&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('kor')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-kor')"></span></th>
+                <th>영어&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('eng')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-eng')"></span></th>
+                <th>수학&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('math')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-math')"></span></th>
+                <th>총점&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('sum')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-sum')"</span></th>
+                <th>평균&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('avg')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-avg')"></span></th>
+                <th>삭제</th>
+                <th><button style="float:center;" type="button" class="btn btn-default btn-sm" ng-click="removeChecked()"><span class="glyphicon glyphicon-erase"></span>선택된 학생삭제</button><br></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="student in students | orderBy:myOrderBy track by student.id">
+                <td>{{student.id}}</td>
+                <td>{{student.name}}</td>
+                <td>{{student.kor}}</td>
+                <td>{{student.eng}}</td>
+                <td>{{student.math}}</td>
+                <td>{{student.sum}}</td>
+                <td>{{student.avg | number:2}}</td>
+                <td><button ng-click="removeStudent($index)">&times;</button></td>
+                <td><input type="checkbox" ng-model="student.checked"></td>
+
+                <!--ng-click="removeChecked()"-->
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</script>
+
+  <!-- Search template-->
+  <script type="text/ng-template" id="searchStudents">
+  <div class="page-header"><h1><b>&nbsp;&nbsp;학생 성적 검색</b></h1></div>
+
+	<h4><b>&nbsp;&nbsp;검색할 학생 이름을 입력하세요.</b></h4>
+          <form name="searchForm" class="form-inline">
+              &nbsp;&nbsp;<label for="name">이름:</label>
+              <input type="text" class="form-control" style="width: 15em" id="name" ng-model="search" placeholder="이름 입력(최대 15자)" maxlength="15" required>
+          </form><br>
+
+  <div class="well well-lg">
+    <div class="table-responsive">
+		<table class="table table-bordered">
+          <thead>
+            <tr>
+                <th>ID&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('id')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-id')"></span></th>
+                <th>이름&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('name')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-name')"></span></th>
+                <th>국어&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('kor')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-kor')"></span></th>
+                <th>영어&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('eng')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-eng')"></span></th>
+                <th>수학&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('math')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-math')"></span></th>
+                <th>총점&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('sum')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-sum')"</span></th>
+                <th>평균&nbsp;<span class="glyphicon glyphicon-triangle-top" ng-click="orderByMe('avg')"></span>
+                    <span class="glyphicon glyphicon-triangle-bottom" ng-click="orderByMe('-avg')"></span></th>
+                <th>삭제</th>
+                <th><button style="float:center;" type="button" class="btn btn-default btn-sm" ng-click="removeChecked()"><span class="glyphicon glyphicon-erase"></span>선택된 학생삭제</button><br></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="student in students | orderBy:myOrderBy | filter:{name:search} track by student.id">
+                <td>{{student.id}}</td>
+                <td>{{student.name}}</td>
+                <td>{{student.kor}}</td>
+                <td>{{student.eng}}</td>
+                <td>{{student.math}}</td>
+                <td>{{student.sum}}</td>
+                <td>{{student.avg | number:2}}</td>
+                <td><button ng-click="removeStudent($index)">&times;</button></td>
+                <td><input type="checkbox" ng-model="student.checked"></td>
+
+                <!--ng-click="removeChecked()"-->
+            </tr>
+          </tbody>
+        </table>
+    </div>
+  </div>
+</script>
+
+ <!-- Edit template-->
+  <script type="text/ng-template" id="editStudents">
+        <div class="page-header"><h1><b>&nbsp;&nbsp;학생 성적 수정</b></h1></div>
+        <div class="well well-lg">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>이름</th>
+                    <th>국어</th>
+                    <th>영어</th>
+                    <th>수학</th>
+                    <th>총점</th>
+                    <th>평균</th>
+                    <th>Edit</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="student in students">
+                        <td>{{student.id}}</td>
+                        <td>{{student.name}}</td>
+                        <td>{{student.kor}}</td>
+                        <td>{{student.eng}}</td>
+                        <td>{{student.math}}</td>
+                        <td>{{student.sum}}</td>
+                        <td>{{student.avg | number:2}}</td>
+                        <td><button ng-click="editStudent(student, $index)">수정</button></td>
+                </tr>
+                </tbody>
+            </table>
+            <table class="table table-bordered" ng-show="isEditable">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>이름</th>
+                    <th>국어</th>
+                    <th>영어</th>
+                    <th>수학</th>
+                    <th>Edit</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{editablerow.id}}</td>
+                        <td><input class="form-control" type="text" ng-model="editablerow.name"></td>
+                        <td><input class="form-control" type="number" ng-model="editablerow.kor" ng-maxlength="3" ng-min="0" ng-max="100"></td>
+                        <td><input class="form-control" type="number" ng-model="editablerow.eng" ng-maxlength="3" ng-min="0" ng-max="100"></td>
+                        <td><input class="form-control" type="number" ng-model="editablerow.math" ng-maxlength="3" ng-min="0" ng-max="100"></td>
+                        <td><button ng-click="saveData()">저장</button><button ng-click="reset()">취소</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </script>
+</body>
+</html>
